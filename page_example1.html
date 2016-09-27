@@ -1,0 +1,48 @@
+<!DOCTYPE html> 
+<html>
+<head>
+	<title>Page Title</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="js/jquery/mobile/jquery.mobile-1.4.5.min.css" />
+	<script src="js/jquery/jquery.js"></script>
+	<script src="js/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>
+</head>
+
+<body>
+
+<div data-role="page" id="elencoSchede">
+    <div data-theme="" data-role="header">
+        <a id="btnBack" data-role="button" href="#homePage" data-icon="back" data-iconpos="left" class="ui-btn-left"></a>
+        <h3>Schede immobiliari</h3>
+    </div>
+ 
+    <div data-role="content">
+        <ul id="liElencoSchede" data-role="listview" data-divider-theme="d" data-inset="true">
+            <li data-role="list-divider" role="heading">Schede</li>
+            <li data-theme="c">
+                <a href="#scheda" data-transition="slide">Appartamento Firenze Centro</a>
+            </li>
+            <li data-theme="c">
+                <a href="#scheda" data-transition="slide">Villa Roma Trastevere</a>
+            </li>
+            <li data-theme="c">
+                <a href="#scheda" data-transition="slide">Villetta a schiera Napoli Vomero</a>
+            </li>
+        </ul>
+    </div>
+     
+    <div data-theme="a" data-role="footer" data-position="fixed">
+        <h3>Schede immobiliari</h3>
+    </div>
+</div>
+
+<script type="text/javascript" src="cordova.js"></script>
+<script type="text/javascript" src="js/basic.js"></script>
+<script type="text/javascript">
+        app.initialize();
+</script>
+	
+
+</body>
+
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html> 
+<html>
+<head>
+	<title>Multiple Page</title>
+   
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+   
+	<link rel="stylesheet" href="js/jquery/mobile/jquery.mobile-1.4.5.min.css" />
+   
+	<script src="js/jquery/jquery.js"></script>
+	<script src="js/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>
+   <script src="cordova.js"></script>
+   <script src="js/basic.js"></script>
+
+   
+<script>
+	
+  var db;
+  
+  
+  $(document).ready(function() {
+    
+	 app.initialize();
+	 
+   });   
+   
+	
+	
+	
+  function initPage() {
+	  
+		$(document).on("pagebeforeshow","#page1",function()  {
+		  
+		   console.log("pagebeforeshow page1" );
+		  });
+	
+		
+		$(document).on("pagebeforeshow","#page2",function() {
+																		  
+		  console.log("pagebeforeshow page2" );
+		  
+		  });	  
+		
+		
+		$(document).on("pagebeforeshow","#page3",function() {
+															
+		  console.log("pagebeforeshow query per popolare lista" );
+			
+		  //query su DB e popolamneto list 
+		  db.transaction( queryTables , errorDB, successDB);
+		  
+		  });	  
+	  
+	  
+	   //creo DB e tabella	 
+      db = window.openDatabase("Dummy_DB", "1.0", "Just a Dummy DB", 200000 ); //will create database Dummy_DB or open it
+		
+ 	   db.transaction( createTables , errorDB, successDB);
+	 
+	   //popolo tabella
+ 	   db.transaction( populateTables , errorDB, successDB);
+	 
+	 }
+	
+	
+	
+	//oggetto per DB
+	
+		
+	function createTables(tx) {
+		     tx.executeSql('CREATE TABLE IF NOT EXISTS SoccerPlayer (id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, Club TEXT NOT NULL)');
+		
+ 	        //tx.executeSql('DELETE FROM SoccerPlayer');
+	       }
+
+
+	//create table and insert some record
+	function populateTables(tx) {
+		
+		tx.executeSql('INSERT INTO SoccerPlayer(Name,Club) VALUES ("Paolo Pulici", "FC Torino")');
+		tx.executeSql('INSERT INTO SoccerPlayer(Name,Club) VALUES ("Francesco Graziani", "FC Torino")');
+	}
+
+
+
+   //function will be called when an error occurred
+	function errorDB(err) {	alert("Error processing SQL: "+err.code);  }
+
+	//function will be called when process succeed
+	function successDB() { console.log("Success processing SQL: "  );	}
+
+
+	//select all from SoccerPlayer
+	function queryTables(tx){
+			
+		tx.executeSql('SELECT * FROM SoccerPlayer',[],querySuccess,errorDB);
+ 	}
+   //
+   //
+	function querySuccess(tx,result) {
+	
+		$('#SoccerPlayerList').empty();
+		
+		$.each( result.rows , function(index) {
+		
+			var row = result.rows.item(index);
+			
+			$('#SoccerPlayerList').append('<li><a href="#"><h3 class="ui-li-heading">'+row['Name']+'</h3><p class="ui-li-desc">Club '+row['Club']+'</p></a></li>');
+		
+		});
+
+		$('#SoccerPlayerList').listview() 
+	  }
+
+
+</script>
+      
+   
+</head>
+
+<body>
+
+
+
+
+
+<!------- PRIMA PAGINA ------->
+<div data-role="page" id="page1" >
+
+	<div data-role="header">
+		<h1>Page 1 Title </h1>
+	</div>
+
+	<div role="main" class="ui-content">
+		<p>Page 1 content goes here.</p>
+      <a href="#page2"> To Page 2 </a>
+      <br/>
+      <a href="#page0"> To Dialog Page 0 </a>
+      
+  		<p><a href="#homeImmobiliare"> Home Immobiliare </a></p>
+
+	</div>
+
+	<div data-role="footer">
+		<h4>Page 1 Footer</h4>
+	</div>
+   
+</div><!-- /page -->
+
+
+
+
+
+<!------- SECONDA PAGINA ------->
+<div data-role="page" id="page2" >
+
+	<div data-role="header">
+		<h1>Page 2 Title </h1>
+	</div>
+
+	<div role="main" class="ui-content">
+		<p>Page 2 content goes here.</p>
+      <a href="#page1"> Back to Page 1 </a><br>
+      <a href="#page3"> To Page 3 </a>
+	</div>
+   
+	<div data-role="footer">
+		<h4>Page 2 Footer</h4>
+	</div>
+   
+</div>
+
+
+
+
+
+<!------- TERZA PAGINA CON POPOLAZIONE DINAMICA LISTA ------->
+<div data-role="page" id="page3" >
+  
+  <div data-role="header" >
+    <h1>Pagina che legge da DB per popolare ListView </h1>
+  </div>
+  
+  <div data-role="content">
+     <ul id="SoccerPlayerList"></ul>
+  </div>
+  
+</div>
+
+
+
+
+
+
+<!------- DIALOG------->
+<div data-role="page" data-dialog="true" id="page0">
+  <div data-role="main" class="ui-content">
+    <a href="#page1">Go to Page One</a>
+  </div>
+</div>
+
+
+<!-- ------------------------------------------------------------------------------------------------------ -->
+
+
+
+<div data-role="page" id="homeImmobiliare">
+    <div data-theme="" data-role="header">
+        <h3>Schede immobiliari</h3>
+    </div>
+ 
+    <div data-role="content">
+        <a data-role="button" href="#scheda" data-icon="plus" data-iconpos="left">Nuova scheda</a>
+        <a data-role="button" href="#elencoSchede" data-icon="bars" data-iconpos="left">Elenco schede</a>
+        <a id="btnInviaSchede" data-role="button" href="#page1" data-icon="forward" data-iconpos="left">Invia schede</a>
+    </div>
+ 
+    <div data-theme="a" data-role="footer" data-position="fixed">
+        <h3>Schede immobiliari</h3>
+    </div>
+</div>
+
+
+
+
+
+<div data-role="page" id="scheda">
+    <div data-theme="" data-role="header">
+        <a id="btnBack" data-role="button" href="#homePage" data-icon="back" data-iconpos="left" class="ui-btn-left"></a>
+        <h3>Nuova scheda</h3>
+    </div>
+ 
+    <div data-role="content">
+        <div data-role="fieldcontain">
+            <input name="txtNome" id="txtNome" placeholder="Nome scheda" value="" type="text">
+        </div>
+        <div data-role="fieldcontain">
+            <input name="txtIndirizzo" id="txtIndirizzo" placeholder="Indirizzo" value="" type="text">
+        </div>
+        <div data-role="fieldcontain">
+            <textarea name="txtDescrizione" id="txtDescrizione" placeholder="Descrizione"></textarea>
+        </div>
+        <div data-role="fieldcontain">
+            <input name="txtPrezzo" id="txtPrezzo" placeholder="Prezzo" value="" type="number">
+        </div>
+        <div data-role="fieldcontain">
+            <a id="btnSalva" data-role="button" href="#">Salva</a>
+        </div>
+    </div>
+     
+    <div data-theme="a" data-role="footer" data-position="fixed">
+        <h3>Schede immobiliari</h3>
+    </div>
+</div>
+
+
+
+<div data-role="page" id="elencoSchede">
+    <div data-theme="" data-role="header">
+        <a id="btnBack" data-role="button" href="#homePage" data-icon="back" data-iconpos="left" class="ui-btn-left"></a>
+        <h3>Schede immobiliari</h3>
+    </div>
+ 
+    <div data-role="content">
+        <ul id="liElencoSchede" data-role="listview" data-divider-theme="d" data-inset="true">
+            <li data-role="list-divider" role="heading">Schede</li>
+            <li data-theme="c">
+                <a href="#scheda" data-transition="slide">Appartamento Firenze Centro</a>
+            </li>
+            <li data-theme="c">
+                <a href="#scheda" data-transition="slide">Villa Roma Trastevere</a>
+            </li>
+            <li data-theme="c">
+                <a href="#scheda" data-transition="slide">Villetta a schiera Napoli Vomero</a>
+            </li>
+        </ul>
+    </div>
+     
+    <div data-theme="a" data-role="footer" data-position="fixed">
+        <h3>Schede immobiliari</h3>
+    </div>
+</div>
+
+
+
+
+	
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html> 
+<html>
+<head>
+	<title>Page con SQLite </title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="js/jquery/mobile/jquery.mobile-1.4.5.min.css" />
+	<script src="js/jquery/jquery.js"></script>
+	<script src="js/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>
+		
+	<script>
+	
+	     var db;
+	
+		 function initPage() {
+		 
+		    db = window.openDatabase("Dummy_DB", "1.0", "Just a Dummy DB", 200000 ); //will create database Dummy_DB or open it
+
+			db.transaction( populateDB, errorCB, successCB);
+			
+		 }
+			
+		//create table and insert some record
+		function populateDB(tx) {
+			tx.executeSql('CREATE TABLE IF NOT EXISTS SoccerPlayer (id INTEGER PRIMARY KEY AUTOINCREMENT, Name TEXT NOT NULL, Club TEXT NOT NULL)');
+			tx.executeSql('DELETE FROM SoccerPlayer');
+			tx.executeSql('INSERT INTO SoccerPlayer(Name,Club) VALUES ("Paolo Pulici", "FC Torino")');
+			tx.executeSql('INSERT INTO SoccerPlayer(Name,Club) VALUES ("Francesco Graziani", "FC Torino")');
+		}
+
+		//function will be called when an error occurred
+		function errorCB(err) {
+			alert("Error processing SQL: "+err.code);
+		}
+
+		//function will be called when process succeed
+		function successCB() {
+		
+			alert("CREAZIONE E POPOLAMENTO TABELLA TERMINATA CON SUCCESSO !");
+			
+			db.transaction( queryDB, errorCB );
+		
+		}
+
+		//select all from SoccerPlayer
+		function queryDB(tx){
+			
+			tx.executeSql('SELECT * FROM SoccerPlayer',[],querySuccess,errorCB);
+			
+		}
+
+		function querySuccess(tx,result) {
+		
+			$('#SoccerPlayerList').empty();
+			
+			$.each( result.rows , function(index) {
+			
+				var row = result.rows.item(index);
+				
+				$('#SoccerPlayerList').append('<li><a href="#"><h3 class="ui-li-heading">'+row['Name']+'</h3><p class="ui-li-desc">Club '+row['Club']+'</p></a></li>');
+			
+			});
+
+			$('#SoccerPlayerList').listview() 
+
+	 
+	     }
+	 
+	</script>
+
+
+	
+</head>
+
+<body>
+
+
+<div data-role="page">
+  
+  <div data-role="header" >
+    <h1>Soccer Player</h1>
+  </div>
+  
+  <div data-role="content">
+     <ul id="SoccerPlayerList"></ul>
+  </div>
+
+  
+ </div>
+
+
+
+
+<script type="text/javascript" src="cordova.js"></script>
+<script type="text/javascript" src="js/basic.js"></script>
+<script type="text/javascript">
+        app.initialize();
+</script>
+	
+</body>
+</html>

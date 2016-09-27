@@ -1,0 +1,314 @@
+<!DOCTYPE html> 
+<html>
+<head>
+	<title>Multiple Page</title>
+   
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+   
+	<link rel="stylesheet" href="js/jquery/mobile/jquery.mobile-1.4.5.min.css" />
+   
+	<script src="js/jquery/jquery.js"></script>
+	<script src="js/jquery/mobile/jquery.mobile-1.4.5.min.js"></script>
+   <script src="cordova.js"></script>
+   <script src="js/basic.js"></script>
+
+   
+<script>
+	
+  $(document).ready(function() {
+    
+	   app.initialize();
+	 
+   });   
+   
+	
+	
+	
+ function bind() {
+	
+	
+	  $("#btnSalva").on("tap", scheda.save );
+	  
+     $("#btnInviaSchede").on("tap", scheda.send);
+	  
+	  //per foto
+     $("#btnFoto").on("tap", function() {
+             
+           navigator.camera.getPicture( app.onCameraSuccess, app.onCameraError );
+       });	
+	  
+	  
+	  //per rilevazione posizione
+     $("#btnGPS").on("tap", scheda.rilevaPosizione );		  
+	  
+    
+	  //prima della pagina elencoSchede carico lista
+	  $("#elencoSchede").on("pagebeforeshow",  function( evento ) {
+             
+            var elencoSchede = $("#liElencoSchede");
+            elencoSchede.html("");
+             
+            for (var i=0; i< app.storage.length; i++) {
+                 
+                var li = $("<li data-theme='c'><a href='#' data-transition='slide'>" + app.storage.key(i) + "</a></li>");
+  
+					 li.on("tap", function() {
+								
+							  scheda.load( $(this).text() );
+								
+							  $("#txtNome").val(scheda.data.nome);
+							  $("#txtIndirizzo").val(scheda.data.indirizzo);
+							  $("#txtDescrizione").val(scheda.data.descrizione);
+							  $("#txtPrezzo").val(scheda.data.prezzo);
+							  $("#txtCoordinate").val( JSON.stringify(  scheda.data.coordinate )  );
+							  
+							  $.mobile.changePage( $("#scheda") );
+							  
+						 });
+					 
+					  
+					 li.on("taphold", function() {
+						  
+							 var key = $(this).text();
+							 scheda.elimina(key);
+							 alert( "eliminata scheda " + key );
+							 
+							 $.mobile.changePage( $("#elencoSchede") );
+							 
+						  });
+						  
+					 
+                elencoSchede.append(li);
+              }
+             
+            elencoSchede.listview("refresh");
+        }
+    );	  
+	  
+	}
+	
+	
+  function initPage() {
+	 
+	 }
+	
+	
+	
+	
+//oggetto con dati e metodi della scheda	
+	
+  var scheda = {
+
+    //i dati di una scheda
+    data: { nome: "", indirizzo: "", descrizione: "", prezzo: "0,00" , coordinate: {} } ,
+
+
+    //salva in webStorage
+    save: function() {
+         
+       scheda.data.nome = $("#txtNome").val();
+       scheda.data.indirizzo = $("#txtIndirizzo").val();
+       scheda.data.descrizione = $("#txtDescrizione").val();
+       scheda.data.prezzo = $("#txtPrezzo").val();			
+       scheda.data.coordinate = JSON.parse(   $("#txtCoordinate").val() );			
+		 
+		 
+		 if ( scheda.data.nome != "") 
+		    {
+            app.storage.setItem(  scheda.data.nome, JSON.stringify( scheda.data )  );
+				
+            alert( "salvato " +  JSON.stringify( scheda.data )  ); 
+			 }
+    },
+	 
+	 
+	 //invia a chissachi
+	 send: function() {
+         
+		 alert("send");
+			
+    },
+	 
+	 
+	 //carica da nome scehda in scheda.data
+    load: function(nome) {
+     
+        if (nome != "") {
+             
+            var value = app.storage.getItem( $.trim(nome) );
+            scheda.data = JSON.parse(value);
+        }
+    },
+	 
+	 
+	 //elimina voce da elenco
+	 elimina: function(nome) {
+     
+        if (nome != "") {
+            app.storage.removeItem( $.trim(nome) );
+        }
+    },
+	 
+	 
+	 //rileva posizione da GPS e valorizza #txtCoordinate
+    rilevaPosizione: function()  {
+			
+		    //leggo coordinate da GOD
+			 navigator.geolocation.getCurrentPosition(
+																	
+				 function( position ) {
+					 
+					 var coordinate = position.coords;
+					 
+					 $("#txtCoordinate").val( JSON.stringify(  coordinate ) );
+				  },
+				  
+				 function( errore ) {
+					 
+					 alert("Errore in rilevamento posizione GPS" );
+				  },
+				  
+				  { maximumAge: 5000, timeout: 5000, enableHighAccuracy: true}
+				 
+				 );	
+		  }
+
+	 
+ } //fine oggetto scheda
+
+</script>
+      
+   
+</head>
+
+<body>
+
+
+
+
+
+
+<!-- ------------------------------------------------------------------------------------------------------ -->
+
+
+
+<div data-role="page" id="homePage">
+
+    <div data-theme="" data-role="header">
+        <h3>Schede immobiliari</h3>
+    </div>
+ 
+    <div data-role="content">
+        <a data-role="button" href="#scheda" data-icon="plus" data-iconpos="left">Nuova scheda</a>
+        <a data-role="button" href="#elencoSchede" data-icon="bars" data-iconpos="left">Elenco schede</a>
+        <a id="btnInviaSchede" data-role="button" href="#page1" data-icon="forward" data-iconpos="left">Invia schede</a>
+    </div>
+ 
+    <div data-theme="a" data-role="footer" data-position="fixed">
+        <h3>Schede immobiliari</h3>
+    </div>
+    
+</div>
+
+
+
+
+
+<div data-role="page" id="scheda">
+
+    <div data-theme="" data-role="header">
+        <a id="btnBack" data-role="button" href="#homePage" data-icon="back" data-iconpos="left" class="ui-btn-left"></a>
+        <h3>Nuova scheda</h3>
+    </div>
+ 
+    <div data-role="content">
+    
+        <div data-role="fieldcontain">
+            <input name="txtNome" id="txtNome" placeholder="Nome scheda" value="" type="text">
+        </div>
+        
+        <div data-role="fieldcontain">
+            <input name="txtIndirizzo" id="txtIndirizzo" placeholder="Indirizzo" value="" type="text">
+        </div>
+        
+        <div data-role="fieldcontain">
+            <textarea name="txtDescrizione" id="txtDescrizione" placeholder="Descrizione"></textarea>
+        </div>
+        
+        <div data-role="fieldcontain">
+            <input name="txtPrezzo" id="txtPrezzo" placeholder="Prezzo" value="" type="number">
+        </div>
+        
+        <div data-role="fieldcontain">
+            <input name="txtCoordinate" id="txtCoordinate" placeholder="coordinate" value="" >
+            <a id="btnGPS" href="#"><img src="img/ic_action_location_found.png"/></a>
+        </div>
+        
+         <div data-role="fieldcontain">
+             <a id="btnFoto" href="#"><img src="img/ic_action_camera.png"/></a>
+             <a id="btnFotoAnteprima" href="#"><img id="fotoAnteprima" src=""/></a> 
+         </div>        
+        
+        <div data-role="fieldcontain">
+            <a id="btnSalva" data-role="button" href="#">Salva</a>
+        </div>
+        
+    </div>
+     
+    <div data-theme="a" data-role="footer" data-position="fixed">
+        <h3>Schede immobiliari</h3>
+    </div>
+</div>
+
+
+
+
+<div data-role="page" id="elencoSchede">
+
+    <div data-theme="" data-role="header">
+        <a id="btnBack" data-role="button" href="#homePage" data-icon="back" data-iconpos="left" class="ui-btn-left"></a>
+        <h3>Schede immobiliari</h3>
+    </div>
+ 
+    <div data-role="content">
+    
+        <ul id="liElencoSchede" data-role="listview" data-divider-theme="d" data-inset="true" data-filter="true">
+        
+            <li data-role="list-divider" role="heading">Schede</li>
+            
+            <li data-theme="c">
+                <a href="#scheda" data-transition="slide">descrizione</a>
+            </li>
+            
+            
+        </ul>
+    </div>
+     
+    <div data-theme="a" data-role="footer" data-position="fixed">
+        <h3>Schede immobiliari</h3>
+    </div>
+    
+</div>
+
+
+
+
+<div data-role="page" id="fotoPage">
+  
+    <div data-theme="" data-role="header">
+        <h3>Foto</h3>
+    </div>
+  
+    <div data-role="content">
+        <img id="fotoImmobile" src=""/>
+    </div>
+  
+    <div data-theme="a" data-role="footer" data-position="fixed"></div>
+</div>
+
+
+
+
+	
+</body>
+</html>
